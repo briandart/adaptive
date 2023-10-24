@@ -1,10 +1,10 @@
 import 'dart:io' show Platform;
 
-//import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-//import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
@@ -73,7 +73,7 @@ class _GoogleSignInLoginState extends State<_GoogleSignInLogin> {
       if (account != null) {
         _googleSignIn.authenticatedClient().then((authClient) {
           if (authClient != null) {
-            context.read<AuthedUserPlaylists>().authClient = authClient;
+            context.read<AuthedUserPlaylists>().authClient(authClient);
             context.go('/');
           }
         });
@@ -95,12 +95,8 @@ class _GoogleSignInLoginState extends State<_GoogleSignInLogin> {
   }
 }
 
-class GoogleSignIn {
-  get onCurrentUserChanged => null;
-
-  void signIn() {}
-
-  authenticatedClient() {}
+class AuthedUserPlaylists {
+  void authClient(AuthClient authClient) {}
 }
 
 class _GoogleApisAuthLogin extends StatefulWidget {
@@ -127,7 +123,8 @@ class _GoogleApisAuthLoginState extends State<_GoogleApisAuthLogin> {
         _authUrl = Uri.parse(url);
       });
     }).then((authClient) {
-      context.read<AuthedUserPlaylists>().authClient = authClient;
+      context.read<AuthedUserPlaylists>().authClient(authClient);
+
       context.go('/');
     });
   }
@@ -155,12 +152,4 @@ class _GoogleApisAuthLoginState extends State<_GoogleApisAuthLogin> {
       ),
     );
   }
-}
-
-class AuthedUserPlaylists {
-  bool? get isLoggedIn => null;
-
-  get playlists => null;
-
-  set authClient(authClient) {}
 }

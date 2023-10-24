@@ -11,8 +11,8 @@ class AdaptivePlaylists extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;//use window width
-    final targetPlatform = Theme.of(context).platform;//inspect theme whether to display wide layout using the split view or not
+    final screenWidth = MediaQuery.of(context).size.width;
+    final targetPlatform = Theme.of(context).platform;
 
     if (targetPlatform == TargetPlatform.android ||
         targetPlatform == TargetPlatform.iOS ||
