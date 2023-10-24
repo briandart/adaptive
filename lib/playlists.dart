@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/youtube/v3.dart';
 import 'package:provider/provider.dart';
 
-import 'adaptive_login.dart';
+import 'adaptive_image.dart'; // Add this line
+import 'app_state.dart';
 
 class Playlists extends StatelessWidget {
   const Playlists({required this.playlistSelected, super.key});
@@ -29,7 +30,59 @@ class Playlists extends StatelessWidget {
   }
 }
 
-Widget _PlaylistsListView({required items, required PlaylistsListSelected playlistSelected})
+typedef PlaylistsListSelected = void Function(Playlist playlist);
 
-class PlaylistsListSelected {
+class _PlaylistsListView extends StatefulWidget {
+  const _PlaylistsListView({
+    required this.items,
+    required this.playlistSelected,
+  });
+
+  final List<Playlist> items;
+  final PlaylistsListSelected playlistSelected;
+
+  @override
+  State<_PlaylistsListView> createState() => _PlaylistsListViewState();
+}
+
+class _PlaylistsListViewState extends State<_PlaylistsListView> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: widget.items.length,
+      itemBuilder: (context, index) {
+        var playlist = widget.items[index];
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: AdaptiveImage.network(  // Change this one.
+              playlist.snippet!.thumbnails!.default_!.url!,
+            ),
+            title: Text(playlist.snippet!.title!),
+            subtitle: Text(
+              playlist.snippet!.description!,
+            ),
+            onTap: () {
+              widget.playlistSelected(playlist);
+            },
+          ),
+        );
+      },
+    );
+  }
 }

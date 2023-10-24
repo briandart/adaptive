@@ -1,30 +1,26 @@
-// Drop dart:io import
-
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:googleapis_auth/googleapis_auth.dart'; // Add this line
+import 'package:googleapis_auth/googleapis_auth.dart';
 import 'package:provider/provider.dart';
 
-import 'adaptive_login.dart';                     // Add this line
+import 'package:adaptive_app/adaptive_login.dart' as auth;
 import 'adaptive_playlists.dart';
-import 'app_state.dart';
+import 'package:adaptive_app/app_state.dart';
 import 'playlist_details.dart';
 
-// Drop flutterDevAccountId and youTubeApiKey
 
-// Add from this line
-// From https://developers.google.com/youtube/v3/guides/auth/installed-apps#identify-access-scopes
+
+// Define the access scopes for the YouTube API.
 final scopes = [
   'https://www.googleapis.com/auth/youtube.readonly',
 ];
 
-// TODO: Replace with your Client ID and Client Secret for Desktop configuration
+// TODO: Replace with your Client ID and Client Secret for Desktop configuration.
 final clientId = ClientId(
   'TODO-Client-ID.apps.googleusercontent.com',
   'TODO-Client-secret',
 );
-// To this line
 
 final _router = GoRouter(
   routes: <RouteBase>[
@@ -33,33 +29,30 @@ final _router = GoRouter(
       builder: (context, state) {
         return const AdaptivePlaylists();
       },
-      // Add redirect configuration
       redirect: (context, state) {
+        // Redirect to the login page if the user is not logged in.
         if (!context.read<AuthedUserPlaylists>().isLoggedIn) {
           return '/login';
         } else {
           return null;
         }
       },
-      // To this line
       routes: <RouteBase>[
-        // Add new login Route
         GoRoute(
           path: 'login',
           builder: (context, state) {
-            return AdaptiveLogin(
+            return auth.AdaptiveLogin(
               clientId: clientId,
               scopes: scopes,
               loginButtonChild: const Text('Login to YouTube'),
             );
           },
         ),
-        // To this line
         GoRoute(
           path: 'playlist/:id',
           builder: (context, state) {
-            final title = state.queryParams['title']!;
-            final id = state.params['id']!;
+            final title = state.uri.queryParameters['title']!;
+            final id = state.pathParameters['id']!;
             return Scaffold(
               appBar: AppBar(title: Text(title)),
               body: PlaylistDetails(
@@ -74,22 +67,22 @@ final _router = GoRouter(
   ],
 );
 
-
-
 void main() {
-  runApp(ChangeNotifierProvider<AuthedUserPlaylists>(        // Modify this line
-    create: (context) => AuthedUserPlaylists(), // Modify this line
-    child: const PlaylistsApp(),
-  ));
+  runApp(
+    ChangeNotifierProvider<AuthedUserPlaylists>(
+      create: (context) => AuthedUserPlaylists(),
+      child: const PlaylistsApp(),
+    ),
+  );
 }
 
 class PlaylistsApp extends StatelessWidget {
-  const PlaylistsApp({super.key});
+  const PlaylistsApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Your Playlists',            // Change FlutterDev to Your
+    return MaterialApp.router(
+      title: 'Your Playlists',
       theme: FlexColorScheme.light(
         scheme: FlexScheme.red,
         useMaterial3: true,
@@ -98,7 +91,7 @@ class PlaylistsApp extends StatelessWidget {
         scheme: FlexScheme.red,
         useMaterial3: true,
       ).toTheme,
-      themeMode: ThemeMode.dark, // Or ThemeMode.System if you'd prefer
+      themeMode: ThemeMode.dark, // Or ThemeMode.System if you prefer
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
     );

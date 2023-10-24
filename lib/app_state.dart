@@ -1,22 +1,23 @@
-// TODO Implement this library.
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:http/http.dart' as http;
 
-class AuthedUsersDevPlaylists extends ChangeNotifier {
-  set authClient(http.Client client) {
-    _api = YouTubeApi(
-    _loadPlaylists() as http.Client);
+class AuthedUserPlaylists extends ChangeNotifier {  // Rename class
+  set authClient(http.Client client) { // Drop constructor, add setter
+    _api = YouTubeApi(client);
+    _loadPlaylists();
   }
+
   bool get isLoggedIn => _api != null; // Add property
+
   Future<void> _loadPlaylists() async {
     String? nextPageToken;
     _playlists.clear();
 
     do {
-      final response = await _api!.playlists.list(
+      final response = await _api!.playlists.list(  // Add ! to _api
         ['snippet', 'contentDetails', 'id'],
         mine: true,   // convert from channelId: to mine:
         maxResults: 50,
@@ -27,10 +28,10 @@ class AuthedUsersDevPlaylists extends ChangeNotifier {
           .toLowerCase()
           .compareTo(b.snippet!.title!.toLowerCase()));
       notifyListeners();
-    } while (null != nextPageToken);
+    } while (nextPageToken != null);  // ignore: unnecessary_null_comparison
   }
-  YouTubeApi? _api;    // Convert from late final to optional
 
+  YouTubeApi? _api;    // Convert from late final to optional
 
   final List<Playlist> _playlists = [];
   List<Playlist> get playlists => UnmodifiableListView(_playlists);
@@ -47,7 +48,7 @@ class AuthedUsersDevPlaylists extends ChangeNotifier {
   Future<void> _retrievePlaylist(String playlistId) async {
     String? nextPageToken;
     do {
-      var response = await _api!.playlistItems.list(
+      var response = await _api!.playlistItems.list(  // Add ! to _api
         ['snippet', 'contentDetails'],
         playlistId: playlistId,
         maxResults: 25,
@@ -62,5 +63,3 @@ class AuthedUsersDevPlaylists extends ChangeNotifier {
     } while (nextPageToken != null);
   }
 }
-
-//deleted unused api class
